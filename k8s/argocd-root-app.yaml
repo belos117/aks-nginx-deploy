@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/<YOUR_GITHUB_USERNAME>/devsecops-monorepo.git
+    repoURL: https://github.com/belos117/aks-nginx-deploy.git
     targetRevision: HEAD
     directory:
       recurse: true
