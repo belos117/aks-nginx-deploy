@@ -91,9 +91,9 @@ jobs:
         run: |
           az acr login --name ${{ env.ACR_NAME }}
           IMAGE_TAG=${{ github.sha }}
-          docker build ./app -t ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ IMAGE_TAG }}
-          docker push ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ IMAGE_TAG }}
-          echo "NEW_IMAGE_TAG=${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ IMAGE_TAG }}" >> $GITHUB_ENV
+          docker build ./app -t ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:$IMAGE_TAG
+          docker push ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:$IMAGE_TAG
+          echo "NEW_IMAGE_TAG=${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:$IMAGE_TAG" >> $GITHUB_ENV
 
       - name: Update Kubernetes Manifest
         run: |
