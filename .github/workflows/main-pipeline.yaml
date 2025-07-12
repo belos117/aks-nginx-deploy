@@ -1,0 +1,109 @@
+name: Monorepo CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+    paths-ignore:
+      - 'README.md'
+  workflow_dispatch:
+
+env:
+  ACR_NAME: ""
+  IMAGE_NAME: monorepo-nginx-app
+
+jobs:
+  terraform-apply:
+    name: "Terraform Apply"
+    runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      contains(join(github.event.commits.*.message), '[INFRA]')
+
+    outputs:
+      acr_name: ${{ steps.set_outputs.outputs.acr_name }}
+      aks_cluster_name: ${{ steps.set_outputs.outputs.aks_cluster_name }}
+      resource_group_name: ${{ steps.set_outputs.outputs.resource_group_name }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+      
+      - name: Terraform Init
+        run: terraform -chdir=infra init
+
+      - name: Terraform Apply
+        run: terraform -chdir=infra apply -auto-approve
+
+      - name: Set Terraform Outputs
+        id: set_outputs
+        run: |
+          cd infra
+          echo "acr_name=$(terraform output -raw acr_name)" >> $GITHUB_OUTPUT
+          echo "aks_cluster_name=$(terraform output -raw aks_cluster_name)" >> $GITHUB_OUTPUT
+          echo "resource_group_name=$(terraform output -raw resource_group_name)" >> $GITHUB_OUTPUT
+
+  build-and-deploy-app:
+    name: "Build & Deploy App"
+    runs-on: ubuntu-latest
+    needs: terraform-apply
+    if: |
+      always() && (needs.terraform-apply.result == 'success' || needs.terraform-apply.result == 'skipped') &&
+      (github.event_name == 'workflow_dispatch' || contains(join(github.event.commits.*.message), '[APP]'))
+      
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: 'Security: Run Trivy Vulnerability Scanner'
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: './app'
+          exit-code: '1'
+          ignore-unfixed: true
+          severity: 'CRITICAL,HIGH'
+
+      - name: Get Terraform Outputs
+        id: tf_outputs
+        run: |
+          # If terraform ran, use its outputs. Otherwise, query Azure.
+          if [ "${{ needs.terraform-apply.outputs.acr_name }}" != "" ]; then
+            echo "ACR_NAME=${{ needs.terraform-apply.outputs.acr_name }}" >> $GITHUB_ENV
+          else
+            ACR_NAME_QUERY=$(az acr list --query "[?contains(name, 'monorepoacr')].name" -o tsv)
+            echo "ACR_NAME=$ACR_NAME_QUERY" >> $GITHUB_ENV
+          fi
+
+      - name: Build and Push Docker Image
+        run: |
+          az acr login --name ${{ env.ACR_NAME }}
+          IMAGE_TAG=${{ github.sha }}
+          docker build ./app -t ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ IMAGE_TAG }}
+          docker push ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ IMAGE_TAG }}
+          echo "NEW_IMAGE_TAG=${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ IMAGE_TAG }}" >> $GITHUB_ENV
+
+      - name: Update Kubernetes Manifest
+        run: |
+          sed -i "s|image:.*|image: ${{ env.NEW_IMAGE_TAG }}|g" k8s/app/deployment.yaml
+          cat k8s/app/deployment.yaml # Verify change
+
+      - name: Commit and Push Manifest Update
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions-bot@github.com"
+          git add k8s/app/deployment.yaml
+          git commit -m "Update image tag for nginx-webapp [CI SKIP]" || echo "No manifest changes to commit."
+          git push
