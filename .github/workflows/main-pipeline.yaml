@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     if: |
       github.event_name == 'workflow_dispatch' ||
-      contains(join(github.event.commits.*.message), '[INFRA]')
+      contains(join(github.event.commits.*.message), '[infra]')
 
     outputs:
       acr_name: ${{ steps.set_outputs.outputs.acr_name }}
