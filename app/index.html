@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecureApp | DevSecOps Project</title>
+    <style>
+        /* Global Styles */
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #2c3e50;
+            --success-color: #27ae60;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            line-height: 1.6;
+            color: #333;
+            background-color: #f9f9f9;
+        }
+        
+        a {
+            text-decoration: none;
+            color: var(--secondary-color);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .btn {
+            display: inline-block;
+            background: var(--secondary-color);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        .btn-accent {
+            background: var(--accent-color);
+        }
+        
+        .btn-accent:hover {
+            background: #c0392b;
+        }
+        
+        /* Header */
+        header {
+            background: var(--primary-color);
+            color: white;
+            padding: 20px 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .logo span {
+            color: var(--secondary-color);
+        }
+        
+        .nav-links {
+            display: flex;
+            list-style: none;
+        }
+        
+        .nav-links li {
+            margin-left: 30px;
+        }
+        
+        .nav-links a {
+            color: white;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+        
+        .nav-links a:hover {
+            color: var(--secondary-color);
+        }
+        
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 80px 0;
+            text-align: center;
+        }
+        
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto 30px;
+        }
+        
+        /* Sections */
+        .section {
+            padding: 60px 0;
+        }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 50px;
+            color: var(--primary-color);
+        }
+        
+        .section-title h2 {
+            font-size: 2.5rem;
+            position: relative;
+            display: inline-block;
+            padding-bottom: 15px;
+        }
+        
+        .section-title h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: var(--secondary-color);
+        }
+        
+        /* Features */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+        
+        .feature-card {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+        
+        .feature-icon {
+            font-size: 2.5rem;
+            color: var(--secondary-color);
+            margin-bottom: 20px;
+        }
+        
+        .feature-card h3 {
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+        
+        /* Pipeline */
+        .pipeline {
+            background: var(--light-color);
+        }
+        
+        .pipeline-steps {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+        }
+        
+        .pipeline-step {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            width: 200px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .pipeline-step::after {
+            content: '→';
+            position: absolute;
+            right: -15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--secondary-color);
+            font-size: 1.5rem;
+        }
+        
+        .pipeline-step:last-child::after {
+            display: none;
+        }
+        
+        .step-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--secondary-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-size: 1.5rem;
+        }
+        
+        /* Team */
+        .team-members {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+        
+        .member-card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        
+        .member-img {
+            height: 200px;
+            background: var(--light-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-color);
+            font-size: 3rem;
+        }
+        
+        .member-info {
+            padding: 20px;
+        }
+        
+        .member-info h3 {
+            margin-bottom: 5px;
+            color: var(--primary-color);
+        }
+        
+        .member-info p {
+            color: var(--secondary-color);
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+        
+        /* Footer */
+        footer {
+            background: var(--dark-color);
+            color: white;
+            padding: 40px 0 20px;
+            text-align: center;
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            list-style: none;
+            margin-bottom: 20px;
+        }
+        
+        .footer-links li {
+            margin: 0 15px;
+        }
+        
+        .footer-links a {
+            color: white;
+        }
+        
+        .footer-links a:hover {
+            color: var(--secondary-color);
+        }
+        
+        .copyright {
+            margin-top: 20px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+            
+            .pipeline-steps {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .pipeline-step {
+                width: 80%;
+            }
+            
+            .pipeline-step::after {
+                content: '↓';
+                right: 50%;
+                top: auto;
+                bottom: -15px;
+                transform: translateX(50%);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">Secure<span>App</span></div>
+                <ul class="nav-links">
+                    <li><a href="#overview">Overview</a></li>
+                    <li><a href="#security">Security</a></li>
+                    <li><a href="#pipeline">Pipeline</a></li>
+                    <li><a href="#team">Team</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1>DevSecOps Implementation</h1>
+            <p>Building secure applications from the ground up with automated security testing integrated throughout the CI/CD pipeline.</p>
+            <a href="#pipeline" class="btn btn-accent">View Our Pipeline</a>
+        </div>
+    </section>
+
+    <!-- Overview Section -->
+    <section id="overview" class="section">
+        <div class="container">
+            <div class="section-title">
+                <h2>Project Overview</h2>
+            </div>
+            <div class="features">
+                <div class="feature-card">
+                    <div class="feature-icon">🔒</div>
+                    <h3>Security First</h3>
+                    <p>Security considerations are integrated from the initial design phase through deployment and maintenance.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Automated Testing</h3>
+                    <p>Automated security scans run with every code commit to identify vulnerabilities early in the development cycle.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔄</div>
+                    <h3>Continuous Monitoring</h3>
+                    <p>Real-time monitoring of production environments to detect and respond to security incidents immediately.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Security Features Section -->
+    <section id="security" class="section" style="background-color: #f5f7fa;">
+        <div class="container">
+            <div class="section-title">
+                <h2>Security Features</h2>
+            </div>
+            <div class="features">
+                <div class="feature-card">
+                    <div class="feature-icon">🔍</div>
+                    <h3>Static Analysis (SAST)</h3>
+                    <p>Automated scanning of source code to identify security vulnerabilities before compilation.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🧪</div>
+                    <h3>Dynamic Analysis (DAST)</h3>
+                    <p>Testing running applications for vulnerabilities like injection flaws and authentication issues.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📦</div>
+                    <h3>Dependency Scanning</h3>
+                    <p>Continuous monitoring of third-party libraries for known vulnerabilities.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🛡️</div>
+                    <h3>Infrastructure as Code</h3>
+                    <p>Security-hardened infrastructure deployed through code with version control and peer review.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pipeline Section -->
+    <section id="pipeline" class="section pipeline">
+        <div class="container">
+            <div class="section-title">
+                <h2>Our CI/CD Pipeline</h2>
+            </div>
+            <div class="pipeline-steps">
+                <div class="pipeline-step">
+                    <div class="step-icon">1</div>
+                    <h3>Code Commit</h3>
+                    <p>Developers push code to version control with security linters</p>
+                </div>
+                <div class="pipeline-step">
+                    <div class="step-icon">2</div>
+                    <h3>SAST Scan</h3>
+                    <p>Static Application Security Testing runs automatically</p>
+                </div>
+                <div class="pipeline-step">
+                    <div class="step-icon">3</div>
+                    <h3>Build & Test</h3>
+                    <p>Unit tests and dependency checks run in isolated environment</p>
+                </div>
+                <div class="pipeline-step">
+                    <div class="step-icon">4</div>
+                    <h3>DAST Scan</h3>
+                    <p>Dynamic testing against staging environment</p>
+                </div>
+                <div class="pipeline-step">
+                    <div class="step-icon">5</div>
+                    <h3>Deploy</h3>
+                    <p>Approved builds deployed with security monitoring</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Team Section -->
+    <section id="team" class="section">
+        <div class="container">
+            <div class="section-title">
+                <h2>Our Team</h2>
+            </div>
+            <div class="team-members">
+                <div class="member-card">
+                    <div class="member-img">👩‍💻</div>
+                    <div class="member-info">
+                        <h3>Sarah Johnson</h3>
+                        <p>Security Architect</p>
+                        <p>10+ years in application security</p>
+                    </div>
+                </div>
+                <div class="member-card">
+                    <div class="member-img">🧑‍💻</div>
+                    <div class="member-info">
+                        <h3>Festus Henkel</h3>
+                        <p>DevOps Engineer</p>
+                        <p>CI/CD pipeline specialist</p>
+                    </div>
+                </div>
+                <div class="member-card">
+                    <div class="member-img">👨‍💻</div>
+                    <div class="member-info">
+                        <h3>David Wilson</h3>
+                        <p>Software Developer</p>
+                        <p>Secure coding expert</p>
+                    </div>
+                </div>
+                <div class="member-card">
+                    <div class="member-img">👩‍💼</div>
+                    <div class="member-info">
+                        <h3>Emily Rodriguez</h3>
+                        <p>QA Engineer</p>
+                        <p>Security testing lead</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <ul class="footer-links">
+                <li><a href="#overview">Overview</a></li>
+                <li><a href="#security">Security</a></li>
+                <li><a href="#pipeline">Pipeline</a></li>
+                <li><a href="#team">Team</a></li>
+            </ul>
+            <p class="copyright">© 2023 SecureApp DevSecOps Project. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>
