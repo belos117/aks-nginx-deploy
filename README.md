@@ -1,0 +1,1 @@
+This is a template for setting up an Azure Kubernetes Cluster on Microsoft Azure using Github Actions.
